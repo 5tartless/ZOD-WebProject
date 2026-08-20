@@ -1,0 +1,123 @@
+<div class="query-container">
+    <div class="search-container">
+        <div class="search"></div>
+            <input type="text" id="search-bar" placeholder="Que tal si buscas un profesional?">
+            <button id="search-button"><i class="fa fa-search"></i></button>
+            <div id="filter-container" class="filter-container hidden">
+            <button id="filter-button">Filtros</button>
+            <button id="remove-filters">Quitar filtros</button>
+            <div id="filter-menu" class="popup-menu hidden">
+                <button id="order-toggle">Ascendente</button>
+                <hr>
+                <form id="filter-form">
+                    <span>Especialidad:</span>
+                    <input type="text" id="profession-filter" autocomplete="off">
+                    <hr>
+                    <span>Ubicacion:</span>
+                    <input type="text" id="direction-filter" autocomplete="off">
+                    <hr>
+                    <button type="submit">Aplicar</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    //params and recieved vars
+    const FILTERS = JSON.parse('<%- JSON.stringify(FILTERS) %>')
+    const queryParams = new URLSearchParams(window.location.search)
+    let {ask:query, ...extraParams} = Object.fromEntries(queryParams.entries())
+    const filterParams = Object.keys(extraParams)
+        .reduce((acc, key) => {
+            if (FILTERS.includes(key)) {
+                acc[key] = extraParams[key]
+            }
+            return acc
+        }, {})
+
+    //elements
+    const searchBar = document.getElementById("search-bar")
+    searchBar.value = query || ''
+    const searchButton = document.getElementById("search-button")
+    const filterContainer = document.getElementById("filter-container")
+    const removeFilters = document.getElementById("remove-filters")
+    //check if filters to show removeFilters
+    function anyFilters () {
+        return Object.keys(filterParams).length > 0
+    }
+    if (!anyFilters()) {
+        removeFilters.classList.add("hidden")
+    }
+
+    const addFilters = document.getElementById("filter-button")
+    const filtersMenu = document.getElementById("filter-menu")
+    const filtersForm = document.getElementById("filter-form") 
+
+    //Filters buttons:
+    const url = new URL(window.location.href)
+    url.pathname = "query"
+    // url.search = ""
+    function setQuery() {
+        query = searchBar.value.trim()
+        url.searchParams.set("ask", query)
+    }
+
+
+    const orderToggle = document.getElementById("order-toggle")
+    let currentOrder = typeof filterParams["order"] === 'undefined'? "ac":filterParams["order"]
+    if (currentOrder === "dc") {
+        orderToggle.textContent = "Descendente"
+    }
+    orderToggle.addEventListener("click", () => {
+        const newVal = currentOrder === "dc"? ["ac", "Ascendente"] : ["dc", "Descendente"]
+        currentOrder = newVal[0]
+
+        orderToggle.textContent = newVal[1]
+        url.searchParams.set("order", newVal[0])
+    })
+
+    
+    const professionFilter = document.getElementById("profession-filter")
+    const directionFilter = document.getElementById("direction-filter")
+    professionFilter.value = filterParams['profession'] || ''
+    directionFilter.value = filterParams['direction'] || ''
+
+    filtersForm.addEventListener("submit", event => {
+        event.preventDefault()
+        const profession = professionFilter.value.trim()
+        const direction = directionFilter.value.trim()
+
+        if (profession.length > 0) {
+            url.searchParams.set("profession", profession) //profession
+        }
+        if (direction.length > 0) {
+            url.searchParams.set("direction", direction) //direction
+        }
+        search()
+    })
+    //search
+    function search (force = false) {
+        setQuery()
+        if (query.length > 0 || force) {
+            window.location.href = force? `/query?ask=${query}`: url.toString()
+        }
+    }
+    
+    searchButton.addEventListener("click", () => search())
+    searchBar.addEventListener("keydown", (event) => {
+        if (event.key == "Enter") {search()}
+    })
+    searchBar.addEventListener("change", setQuery)
+
+    //filters
+    removeFilters.addEventListener("click", () => {
+        if (anyFilters()) {
+            search(force=true)
+        }
+    })
+    addFilters.addEventListener("click", () => {
+        filtersMenu.classList.toggle("hidden")
+    })
+
+</script>

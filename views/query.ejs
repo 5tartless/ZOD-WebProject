@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    <%- include('partials/query-search-bar') %>
+    <h2>buscaste: <%= query%></h2>
+    <main>
+        <div class="container" id="query-list">
+            <div class="card" id="card-sample" hidden>
+                <div class="c-left">
+                    <span class="c-name">Profesional:</span><br>
+                    <span class="c-profession">Especialidad:</span><br>
+                    <span class="c-service">Servicio: Ninguno</span><br>
+                    <span class="c-direction">Ubicacion: Desconocida</span>
+                </div>
+                <div class="c-right">
+                    <button class="contact-button">Contactar</button>
+                    <button class="explore-button">Ver mas</button>
+                </div>
+            </div>
+        </div>
+        <script>
+            filterContainer.classList.remove("hidden")            
+            const queryList = document.getElementById("query-list")
+            const dOpts = JSON.parse('<%- JSON.stringify(dOpts) %>')
+            const pOpts = JSON.parse('<%- JSON.stringify(pOpts) %>')
+            
+            //elements
+            const cardSample = document.getElementById("card-sample")
+
+            function judgeUser (su, detail) {
+                let points = 0
+                const name = su.name.toLowerCase()
+                const lastName = su.lastName.toLowerCase()
+                const profession = detail.profession.toLowerCase()
+                const direction = detail.direction.toLowerCase()
+                
+                //filter out
+                for (filter of Object.keys(filterParams)) {
+                    if (filter === FILTERS[0] && profession !== filterParams[filter].toLowerCase()) {
+                        return 0
+                    } else if (filter === FILTERS[1] && direction !== filterParams[filter].toLowerCase()) {
+                        return 0
+                    }
+                }
+
+                //judge normally
+                const queryTokens = query.toLowerCase().trim().split(/\s+/)
+                const fields = [name, lastName, profession, direction]
+
+                for (const word of queryTokens) { 
+                    let wordMatched = false
+
+                    for (const field of fields) {
+                        if (field.includes(word)) {
+                            points++
+                            wordMatched = true
+                        }
+                    }
+
+                    //this is strict if there is actually no match for this word then stop judging and fail.
+                    if (!wordMatched) {
+                        return 0
+                    }
+                }
+                return points
+            }
+
+            fetch('/query/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json'}
+            }).then((res) => {
+                res.json().then((result => {
+                    const [sUsers, details] = result
+                    //apply search filters... in progress to be made...
+
+                    let scores = {}
+                    for (let i = 0; i < [...sUsers].length; i++) {
+                        const su = sUsers[i]
+                        const detail = details[i]
+                        scores[i] = judgeUser(su, detail)
+                    }
+                    scores = new Map(Object.entries(scores)
+                        .filter(([index, score]) => score > 0)
+                        .map(([index, score]) => [Number(index), score])
+                        .sort(([aIndex, aScore], [bIndex, bScore]) => currentOrder === "ac"?bScore - aScore : aScore - bScore)) //ascending (swap b for a for descending)
+
+                    //show results
+                    for ([index, score] of scores) {
+                        const su = sUsers[index]
+                        const detail = details[index]
+
+                        const card = cardSample.cloneNode(true)
+                        const textList = card.querySelectorAll('span')
+                        const [contactButton, exploreButton] = card.querySelectorAll('button')
+                        
+                        textList[0].textContent = `Profesional: ${su.name} ${su.lastName}`
+                        textList[1].textContent = `Especialidad: ${detail.profession}`
+                        // textList[2].textContent = detail.service
+                        textList[3].textContent = `Ubicacion: ${detail.direction}`
+                        
+                        exploreButton.addEventListener("click", (event) => {
+                            window.location.href = `/profile?username=${su.username}`
+                        })
+
+                        card.hidden = false
+                        queryList.appendChild(card)
+                    }
+                }))
+            })
+            
+
+        </script>
+    </main>
+</body>
+</html>

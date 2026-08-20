@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <% if (typeof foundUser === 'undefined') {%>
+        <title>Ups!</title>
+    <%} else {%>
+        <title><%=foundUser.name%> <%=foundUser.lastName%></title>
+    <%}%> 
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css">
+</head>
+<body>
+    <%- include('partials/header') %>
+    <main>
+        <% if (typeof foundUser === 'undefined') {%>
+            <h1>Este profesional no existe!</h1>
+        <%} else {%>
+            <div class="h-container">
+                <div class="profile-container">
+                    <h2>Informacion del Profesional</h2>
+                    <div class="h-container">
+                        <span>Correo: <%= foundUser.email%></span><br>
+                        <span>Nombre: <%= foundUser.name%></span><br>
+                        <span>Apellido: <%= foundUser.lastName%></span><br>
+                        <span>Direccion: <%= details.direction%></span><br>
+                        <hr>
+                        <label>Informacion de contacto: </label>
+                        <div id="contactInfo" class="text-wall"><%= details.contactInfo || '...'%></div>
+                        <% if (typeof user !== 'undefined' && user._id === foundUser._id) {%> <!-- the same user -->
+                            <script>
+                                const contactInfo = document.getElementById("contactInfo")
+
+                                contactInfo.addEventListener("click", () => {
+                                    const textarea = document.createElement("textarea")
+                                    textarea.value = contactInfo.textContent.trim()
+                                    textarea.setAttribute("rows", 5)
+
+                                    contactInfo.replaceWith(textarea)
+                                    textarea.focus()
+                                    function save () {
+                                        const payload = {
+                                            type: 'contact-info',
+                                            data: textarea.value.trim()
+                                        }
+                                        if (payload.data.length > 0) {
+                                            contactInfo.textContent = payload.data
+                                            fetch('/profile', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json' },
+                                                body: JSON.stringify({payload})
+                                            })
+                                            textarea.replaceWith(contactInfo)
+                                        }
+                                    }
+                                    textarea.addEventListener("keydown", (event) => {
+                                        if (event.key == "Enter") {
+                                            if (event.shiftKey) {
+                                                return
+                                            }
+                                            save()
+                                        }
+                                    })
+                                    textarea.addEventListener("blur", save)
+                                })
+                            </script>
+                        <%}%>
+                    </div>
+                </div>
+
+                <div class="service-container">
+                    <h2 id="container-title">Servicio</h2>
+                    <% if (typeof service !== 'undefined') {%>
+                        <div class="v-container">
+                            <div class="info">
+                                <span>Tipo: <%= details.profession%></span><br>
+                                <div>
+                                    <span>Titulo: </span><span id="service-title"><%= service.name%></span>
+                                </div><br>
+                                <span>Descripcion:</span><br>
+                                <div id="service-description" class="text-wall"><%= service.description %></div>
+                            </div>
+                            <div class="options h-container">
+                                <div>
+                                    <span id="service-logo-unknown" class="service-image hidden">
+                                        <i class="fa-solid fa-image"></i>
+                                        <i class="fa-solid fa-slash fa-inverse" style="color: black;"></i>
+                                    </span>
+                                    <div class="service-image">
+                                        <img id="service-logo-img" src="" alt="">
+                                    </div>
+                                </div>
+                                <input type="file" id="service-upload-logo-input" class="hidden">
+                                <button id="service-upload-logo" class="hidden">Subir Logo <i class="fa fa-upload"></i></button>    
+                                <hr>
+                                <script>
+                                    const service = <%- JSON.stringify(service) %>
+                                    const serviceLogoUnknown = document.getElementById("service-logo-unknown")
+                                    const serviceLogoImg = document.getElementById("service-logo-img")
+                                </script>
+                                <div class="service-buttons">
+                                    <% if (typeof user !== 'undefined' && user._id === foundUser._id) {%>
+                                        <button id="edit-service" class="">Editar</button>
+                                        <div id="edition-buttons" class="hidden">
+                                            <button id="save-edit-service">Guardar</button>
+                                            <button id="cancel-edit-service">Cancelar</button>
+                                        </div>
+                                        <script>
+                                            const editService = document.getElementById("edit-service")
+                                            const editServiceLogoInput = document.getElementById("service-upload-logo-input")
+                                            const editServiceLogo = document.getElementById("service-upload-logo")
+                                            
+                                            
+                                            //main edit buttons
+                                            const editionButtons = document.getElementById("edition-buttons")
+                                            const saveEdit = document.getElementById("save-edit-service")
+                                            const cancelEdit = document.getElementById("cancel-edit-service")
+
+                                            //fields
+                                                //noneditable
+                                            const title = document.getElementById("service-title")
+                                            const description = document.getElementById("service-description")
+                                                //editable
+                                            const input = document.createElement("input")
+                                            const textarea = document.createElement("textarea")
+                                            
+                                            //actuall code:
+                                            function hasServiceLogo() {
+                                                return service.serviceImages.logo
+                                            }
+                                            function resetLogo() {
+                                                if (!hasServiceLogo()) {
+                                                    serviceLogoUnknown.classList.remove("hidden")
+                                                    serviceLogoImg.src = ""
+                                                } else {
+                                                    serviceLogoUnknown.classList.add("hidden")
+                                                    // we dont know how to actually do this for now
+                                                    const logoName = JSON.parse('<%- JSON.stringify(logoName) %>')
+                                                    console.log("??")
+                                                    serviceLogoImg.src = `/uploads/img/${logoName}`
+                                                }
+                                                console.log("happenin")
+                                            }
+                                            function setLogo(logo) {
+                                                const fileURL = URL.createObjectURL(logo)
+                                                if (logo.type.startsWith('image/')) {
+                                                    serviceLogoUnknown.classList.add("hidden")
+                                                    serviceLogoImg.src = fileURL
+                                                } else {
+                                                    serviceLogoUnknown.classList.remove("hidden")
+                                                    serviceLogoImg.src = ""
+                                                }
+                                            }
+
+                                            resetLogo()
+
+                                            editService.addEventListener("click", () => {
+                                                editService.classList.add("hidden")
+                                                editionButtons.classList.remove("hidden")
+                                                editServiceLogo.classList.remove("hidden")
+                                                //show new elements
+                                                textarea.setAttribute("rows", 5)
+                                                //set values from non editable
+                                                input.value = title.textContent
+                                                textarea.value = description.textContent
+
+                                                title.replaceWith(input)
+                                                description.replaceWith(textarea)
+                                            })
+
+                                            function resetVisually () {
+                                                resetLogo()
+
+                                                editService.classList.remove("hidden")
+                                                editionButtons.classList.add("hidden")
+                                                editServiceLogo.classList.add("hidden")
+                                                //clear
+                                                input.value = ""
+                                                textarea.value = ""
+
+                                                input.replaceWith(title)
+                                                textarea.replaceWith(description)
+                                            }
+
+                                            editServiceLogo.addEventListener("click", () => {
+                                                editServiceLogoInput.click()
+                                            })
+                                            editServiceLogoInput.addEventListener("change", () => {
+                                                if (editServiceLogoInput.files.length > 0) {
+                                                    const newFile = editServiceLogoInput.files[editServiceLogoInput.files.length-1]
+
+                                                    const dataTransfer = new DataTransfer()
+                                                    if (newFile.type.startsWith('image/')) {
+                                                        dataTransfer.items.add(newFile)
+                                                    }
+                                                    editServiceLogoInput.files = dataTransfer.files
+                                                    
+                                                    setLogo(newFile)
+
+                                                    // const selectedFile = editServiceLogoInput.files[0]
+
+                                                    // const payload = new FormData()
+                                                    // payload.append('type', 'service-logo')
+                                                    // payload.append('data', selectedFile)
+
+                                                    // fetch('/upload', {
+                                                    //     method: 'POST',
+                                                    //     body: payload
+                                                    // })
+                                                }
+                                            })
+                                            /////////////////////
+                                            saveEdit.addEventListener("click", () => {
+                                                //process
+                                                title.textContent = input.value
+                                                description.textContent = textarea.value
+                                                
+                                                const payload = {
+                                                    type: 'edit-service',
+                                                    data: {
+                                                        name: input.value,
+                                                        description: textarea.value
+                                                    }
+                                                }
+                                                const uploadPayload = new FormData()
+                                                const logoFiles = editServiceLogoInput.files
+
+                                                uploadPayload.append('type', 'service-logo')
+                                                uploadPayload.append('data', logoFiles.length > 0? logoFiles[logoFiles.length - 1] : undefined) //logoFiles[0] will be better
+
+                                                fetch('/upload', {
+                                                    method: 'POST',
+                                                    body: uploadPayload
+                                                }).then(res => {
+                                                    if (res.ok) {
+                                                        fetch('/profile', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({payload})
+                                                        }).then(response => {
+                                                            if (response.ok) {
+                                                                window.location.reload()
+                                                            }
+                                                        })
+                                                    }
+                                                })
+                                            })
+                                            cancelEdit.addEventListener("click", resetVisually)
+                                        </script>
+                                    <%} else {%>
+                                        <button id="contact-service">Contactar</button>
+                                        <script>
+                                            const logoName = JSON.parse('<%- JSON.stringify(logoName) %>')
+                                            serviceLogoImg.src = `/uploads/img/${logoName}`
+                                        </script>
+                                    <%} %>
+                                </div>
+                            </div>
+                            
+                        </div>
+                    <%} else {%>
+                        <div class="main-container">
+                            <% if (typeof user !== 'undefined' && user._id === foundUser._id) {%>
+                                <div id="create-prompt" class="h-container">
+                                    <span>No tienes un servicio asignado.</span>
+                                    <button id="spawn-form">Crear</button>
+                                </div>
+                                <form id="create-form" class="hidden">
+                                    <div class="h-container">
+                                        <label>Tipo de Servicio:</label>
+                                        <span>El tipo de servicio fue elejido al crear la cuenta. Es permanente.</span>
+                                        <input type="text" id="service-type" value="<%= details.profession%>" disabled>
+                                        <hr>
+                                        <label>Titulo del servicio:</label>
+                                        <input type="text" id="service-name">
+                                        <hr>
+                                        <label>Descripcion del servicio:</label>
+                                        <textarea id="service-description" rows="4" cols="50" ></textarea>
+                                    </div>
+                                    <div class="service-form-buttons">
+                                        <button type="submit">Confirmar</button>
+                                        <button type="button" id="cancel-form">Volver</button>
+                                    </div>
+                                </form>
+                                <script>
+                                    const user = JSON.parse('<%- JSON.stringify(user) %>')
+                                    const createPrompt = document.getElementById("create-prompt")
+                                    const createForm = document.getElementById("create-form")
+                                    //buttons
+                                    const spawnForm = document.getElementById("spawn-form")
+                                    const cancelForm = document.getElementById("cancel-form")
+
+                                    spawnForm.addEventListener("click", () => {
+                                        createPrompt.classList.add("hidden")
+                                        createForm.classList.remove("hidden")
+                                    })
+                                    cancelForm.addEventListener("click", () => {
+                                        createForm.classList.add("hidden")
+                                        createPrompt.classList.remove("hidden")
+
+                                        createForm.reset()
+                                    })
+
+                                    createForm.addEventListener("submit", (event) => {
+                                        event.preventDefault()
+                                        //form results
+                                        const serviceType = document.getElementById("service-type").value
+                                        const serviceName = document.getElementById("service-name").value
+                                        const serviceDescription = document.getElementById("service-description").value
+
+                                        const payload = {
+                                            type: 'create-service',
+                                            data: {
+                                                type: serviceType,
+                                                name: serviceName,
+                                                description: serviceDescription
+                                            }
+                                        }
+
+                                        fetch('/profile', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json' },
+                                            body: JSON.stringify({payload})
+                                        }).then(response => {
+                                            if (response.ok) {
+                                                window.location.reload()
+                                            }
+                                        })
+
+                                    })
+                                </script>
+                            <%} else {%>
+                                <h2>Este profesional no tiene un servicio asignado.</h2>
+                            <%}%>
+                        </div>
+                    <%}%>
+                </div>
+            </div>
+        <%}%>
+    </main>    
+</body>
+</html>

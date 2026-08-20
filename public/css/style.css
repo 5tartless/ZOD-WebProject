@@ -1,0 +1,344 @@
+:root {
+    --body-bg-color: #f0f2f5;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  display: block;
+  background-color: var(--body-bg-color);
+}
+
+.main-container {
+  display: flex;
+  justify-content: center;   /* Centers form horizontally */
+  align-items: center;       /* Centers form vertically */
+  
+  /* Subtracts estimated header height so the form sits in the true screen center */
+  margin: 6px;
+  min-height: calc(100vh - 70px); 
+}
+
+/* 3. Style your form so its background doesn't stretch from side to side */
+#form {
+  background-color: #f4f4f4; /* Choose your background color */
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+  
+  /* Prevents side-to-side stretching */
+  width: 100%;
+  max-width: 400px; /* Limits size on desktop, shrinks beautifully on mobile */
+  box-sizing: border-box;
+
+  /* Centers the inner inputs, labels, and buttons */
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Adds clean uniform spacing between your form groups */
+}
+
+/* 4. Fix the repeating ID bug (#container) and style form groups */
+.main-container div[class="container"] {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.h-container {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+
+    padding: 8px;
+}
+
+.v-container {
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+
+    padding: 8px;
+}
+
+.profile-container {
+    border: 1px solid #4338ca;
+    border-radius: 6px;
+    padding: 0 2px 0 2px;
+}
+
+.profile-container h2 {
+    text-align: center;
+}
+.text-wall {
+    max-height: 100px;
+    min-height: 30px;
+    overflow-y: scroll;
+    overflow-wrap: break-word;
+    overflow-x: hidden;
+    white-space: pre-wrap;
+    
+
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+
+}
+
+.service-container {
+    border: 1px solid #4338ca;
+    border-radius: 6px;
+    padding: 0 2px 0 2px;
+}
+
+.service-container h2 {
+    text-align: center;
+}
+
+.service-form-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin: 8px 0px;
+}
+
+.service-container .main-container {
+    min-height: auto;
+    margin: 0;
+}
+
+.service-container .info {
+    display: flex;
+    flex-direction: column;
+    width: 75%;
+    gap: 10px;
+}
+
+.service-description {
+    margin: 2px 0px 2px 2px;
+}
+.service-description p {
+    margin: 0;
+}
+
+.service-container .options {
+    width: 25%;
+}
+
+.service-buttons {
+    display: flex;
+    flex-direction: column;
+    margin-top: auto;
+    gap: 4px;
+}
+
+.service-buttons div {
+    display: flex;
+    flex-direction: row;
+    gap: 6px;
+    width: 100%;
+}
+
+.service-buttons button {
+    flex: 1;
+}
+
+.service-image {
+    position: relative;
+    display: inline-flex;
+    font-size: 6rem;
+    height: 1em;
+    width: 100%;
+
+    justify-content: center;
+    align-items: center;
+}
+.service-image i {
+    position: absolute;
+}
+
+img {
+    position: relative;
+    background-color: #4338ca;
+    display: inline-flex;
+    justify-content: center;
+}
+
+button {
+    border: 1px solid #4a3ed4;
+    border-radius: 6px;
+    padding: 3px;
+
+    background-color: #5142f7;
+    color: #f4f4f4;
+    transition: background 0.25s;
+}
+
+button:hover {
+    background-color: #6f62ff;
+}
+
+button:active {
+    background-color: #a8a0ff;
+}
+
+hr {
+    width: 100%;
+    border: none;
+    height: 1px;
+    background-color: #d0d0d0;
+    margin: 5px 0;
+}
+
+textarea {
+    resize: none;
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+
+    scrollbar-width: thin;
+}
+textarea:focus {
+    border-color: #4f46e5;
+}
+
+input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    font-size: 14px;
+    outline: none;
+    transition: border 0.2s;
+}
+
+input:focus {
+    border-color: #4f46e5;
+}
+
+h2 {
+    font-size: 20px;
+    color: #111;
+}
+h3 {
+    font-size: 16px;
+    color: #222;
+}
+
+label {
+    font-size: 14px;
+    color: #444;
+    font-weight: 500;
+}
+
+form button{
+    padding: 11px;
+    background: #4f46e5;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+form button:hover {
+    background: #4338ca;
+}
+
+h1{
+    text-align: center;
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+}
+
+.search-container {
+    width: 100%;
+    padding: 12px;
+}
+.cc {
+    text-align: center;
+}
+
+.search-container input {
+    width: 400px
+}
+
+.query-container {
+    position: relative;
+    display: flex;
+}
+
+.filter-container {
+    position: relative;
+    display: inline-block;
+    align-items: center;
+    padding: 8px;
+}
+
+.popup-menu {
+    position: absolute;
+    background-color: #444;
+    border-radius: 4px;
+    padding: 4px;
+    margin-top: 4px;
+    color: #ccc;
+}
+.popup-menu span {
+    font-size: 14px;
+}
+.popup-menu input {
+    padding: 6px;
+    border-radius: 8px;
+    font-size: 12px;
+    outline: none;
+    transition: border 0.2s;
+}
+
+/* * {
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: var(--body-bg-color);
+    min-height: 100vh;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--main-container-bg-color);
+    
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+.container {
+    width: 100%;
+    max-width: 400px;
+    padding: 16px;
+}
+
+.field {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+     */
+

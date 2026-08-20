@@ -1,0 +1,56 @@
+<link rel="stylesheet" href="css/header.css">
+<header>
+    <div class="header-content">
+        <div class="basic">
+            <button id="header-home-button">Inicio</button>
+            <script>
+                const headerHomeButton = document.getElementById("header-home-button")
+                headerHomeButton.addEventListener("click", () => {
+                    window.location.href = "/"
+                }) 
+            </script>
+            <% if (typeof user !== 'undefined' && user !== null) {%>
+                <button id="header-profile-button">Perfil</button>
+                <script>
+                    const headerProfileButton = document.getElementById("header-profile-button")
+                    const headerProfileUsername = JSON.parse('<%- JSON.stringify(user.username) %>')
+                    headerProfileButton.addEventListener("click", () => {
+                        window.location.href = `/profile?username=${headerProfileUsername}`
+                    })
+                </script>
+            <%} %>
+        </div>
+
+        <div class="auth">
+            <% if (typeof email === 'undefined' && (typeof user === 'undefined' || user === null)) { %>
+                <button id="header-login-button">Iniciar sesion</button>
+                <button id="header-signup-button">Crear cuenta</button>
+                <script>
+                    const headerLoginButton = document.getElementById("header-login-button")
+                    const headerSignupButton = document.getElementById("header-signup-button")
+
+                    headerLoginButton.addEventListener("click", () => {
+                        window.location.href = "/login"
+                    })
+                    headerSignupButton.addEventListener("click", () => {
+                        window.location.href = "/register"
+                    })
+                    </script>
+            <% } else { %>
+                <button id="log-out">Cerrar sesion</button>
+                <script>
+                    const logOut = document.getElementById("log-out")
+                    logOut.addEventListener("click", () => {
+                        fetch("/logout", {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                        }).then(res => {
+                            if (res.ok) {
+                                window.location.href = "/login"
+                            }
+                        })
+                    })
+                </script>
+            <% } %>
+        </div>
+</header>

@@ -1,0 +1,6 @@
+node_modules/
+uploads/img/*
+
+db/service/*
+db/uploads/*
+db/user/*
